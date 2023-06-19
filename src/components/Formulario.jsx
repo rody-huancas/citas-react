@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { Error } from "./Error";
 
-export const Formulario = ({ pacientes, setPacientes, paciente }) => {
+export const Formulario = ({
+  pacientes,
+  setPacientes,
+  paciente,
+  setPaciente,
+}) => {
   const [nombre, setNombre] = useState("");
   const [propietario, setPropietario] = useState("");
   const [email, setEmail] = useState("");
@@ -10,7 +15,13 @@ export const Formulario = ({ pacientes, setPacientes, paciente }) => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // console.log(pacientes);
+    if (Object.keys(paciente).length > 0) {
+      setNombre(paciente.nombre);
+      setPropietario(paciente.propietario);
+      setEmail(paciente.email);
+      setFecha(paciente.fecha);
+      setSintomas(paciente.sintomas);
+    }
   }, [paciente]);
 
   const generarId = () => {
@@ -37,10 +48,21 @@ export const Formulario = ({ pacientes, setPacientes, paciente }) => {
       email,
       fecha,
       sintomas,
-      id: generarId(),
     };
 
-    setPacientes([...pacientes, objPaciente]);
+    if (paciente.id) {
+      // editar
+      objPaciente.id = paciente.id; //agregar el id que ya tenemos cuando creamos
+      const pacientesActualizados = pacientes.map((pacietneState) =>
+        pacietneState.id === paciente.id ? objPaciente : pacietneState
+      );
+      setPacientes(pacientesActualizados);
+      setPaciente({}); // state que viene del App
+    } else {
+      // nuevo registro
+      objPaciente.id = generarId(); // generar id
+      setPacientes([...pacientes, objPaciente]);
+    }
 
     // reniciar el form
     setNombre("");
@@ -144,7 +166,7 @@ export const Formulario = ({ pacientes, setPacientes, paciente }) => {
           <input
             type="submit"
             className="bg-indigo-600 w-full p-3 text-white uppercase font-bold rounded hover:bg-indigo-700 transition-colors cursor-pointer"
-            value="Agregar Paciente"
+            value={paciente.id ? "Editar Paciente" : "Agregar Paciente"}
           />
         </form>
       </div>
